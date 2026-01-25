@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+{% block title %}FeaturePro - Custom Analysis{% endblock %}
+{% block page_title %}FeaturePro - Custom Analysis{% endblock %}
+
+{% block head %}
+<style>
+    /* Keep existing styles */
+    .featurepro-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .control-panel {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        padding: 25px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .control-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 12px;
+        color: #667eea;
+    }
+    
+    .parameter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    
+    .parameter-card {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .parameter-card:hover {
+        border-color: #667eea;
+        background: #f0f4ff;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .parameter-card.selected {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+    
+    .parameter-checkbox {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    .parameter-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        color: #667eea;
+        transition: all 0.3s;
+    }
+    
+    .parameter-card.selected .parameter-icon {
+        color: white;
+    }
+    
+    .parameter-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+    
+    .parameter-desc {
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.4;
+    }
+    
+    .parameter-card.selected .parameter-desc {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .parameter-select-hint {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .parameter-card.selected .parameter-select-hint {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    
+    .time-range-container {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .time-range-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+    
+    .time-range-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .time-input-group {
+        position: relative;
+    }
+    
+    .time-input-group label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #495057;
+    }
+    
+    .time-input-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1rem;
+        background: white;
+        transition: all 0.3s;
+    }
+    
+    .time-input-group select:focus {
+        border-color: #667eea;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary-custom {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-secondary-custom:hover {
+        background: #f8f9fa;
+        transform: translateY(-2px);
+    }
+    
+    .results-container {
+        margin-top: 30px;
+    }
+    
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .results-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    
+    .results-count {
+        background: #667eea;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .graph-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+    
+    .graph-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+    
+    .graph-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    }
+    
+    .graph-header {
+        padding: 20px;
+        border-bottom: 1px solid #f1f3f4;
+        background: #fafbfc;
+    }
+    
+    .graph-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .graph-icon {
+        color: #667eea;
+    }
+    
+    .graph-body {
+        padding: 20px;
+        height: 350px;
+        position: relative;
+    }
+    
+    .insights-container {
+        margin-top: 30px;
+    }
+    
+    .insights-header {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .insight-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid #667eea;
+        transition: all 0.3s;
+    }
+    
+    .insight-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .insight-icon {
+        font-size: 1.5rem;
+        color: #667eea;
+        margin-bottom: 15px;
+    }
+    
+    .insight-text {
+        color: #2c3e50;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+    
+    .selection-summary {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .selection-summary h5 {
+        margin-bottom: 10px;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    .selected-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .selected-tag {
+        background: #667eea;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    @media (max-width: 768px) {
+        .parameter-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+        
+        .time-range-controls {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .graph-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="featurepro-container">
+    <!-- Error Message -->
+    {% if error %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+    </div>
+    {% endif %}
+    
+    <!-- Success Message -->
+    {% if graphs %}
+    <div class="alert alert-success">
+        <i class="fas fa-check-circle me-2"></i>
+        Analysis completed successfully!
+    </div>
+    {% endif %}
+    
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <h2 class="section-title">
+            <i class="fas fa-sliders-h"></i>
+            Analysis Configuration
+        </h2>
+        
+        <!-- Parameter Selection Form -->
+        <form method="POST" action="{{ url_for('featurepro') }}">
+            <!-- Parameter Selection -->
+            <div>
+                <h3 class="time-range-title">Select Climate Parameters</h3>
+                <div class="parameter-grid">
+                    {% if parameters %}
+                        {% for param in parameters %}
+                        <div class="parameter-card {% if param in selected_params %}selected{% endif %}">
+                            <span class="parameter-select-hint">Click to select</span>
+                            <input type="checkbox" 
+                                   name="parameters" 
+                                   value="{{ param }}" 
+                                   id="param-{{ param|lower }}" 
+                                   class="parameter-checkbox"
+                                   {% if param in selected_params %}checked{% endif %}>
+                            <label for="param-{{ param|lower }}" class="parameter-label">
+                                <div class="parameter-icon">
+                                    {% if param == 'Temperature' %}
+                                    <i class="fas fa-temperature-high"></i>
+                                    {% elif param == 'Rainfall' %}
+                                    <i class="fas fa-cloud-rain"></i>
+                                    {% elif param == 'Humidity' %}
+                                    <i class="fas fa-tint"></i>
+                                    {% elif param == 'CO2' %}
+                                    <i class="fas fa-smog"></i>
+                                    {% elif param == 'WindSpeed' %}
+                                    <i class="fas fa-wind"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="parameter-name">{{ param }}</div>
+                                <div class="parameter-desc">
+                                    {% if param == 'Temperature' %}
+                                    Average annual temperature
+                                    {% elif param == 'Rainfall' %}
+                                    Total annual precipitation
+                                    {% elif param == 'Humidity' %}
+                                    Relative humidity levels
+                                    {% elif param == 'CO2' %}
+                                    Carbon dioxide emissions
+                                    {% elif param == 'WindSpeed' %}
+                                    Average annual wind speed
+                                    {% endif %}
+                                </div>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            No parameters available for analysis
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Selection Summary -->
+                {% if selected_params %}
+                <div class="selection-summary">
+                    <h5><i class="fas fa-check-circle me-2"></i>Selected Parameters:</h5>
+                    <div class="selected-tags">
+                        {% for param in selected_params %}
+                        <span class="selected-tag">{{ param }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Time Range Selection -->
+            {% if years %}
+            <div class="time-range-container">
+                <h3 class="time-range-title">Select Time Period</h3>
+                <div class="time-range-controls">
+                    <div class="time-input-group">
+                        <label for="year_start">Start Year</label>
+                        <select id="year_start" name="year_start">
+                            {% for year in years %}
+                            <option value="{{ year }}" {% if year == year_start %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="time-input-group">
+                        <label for="year_end">End Year</label>
+                        <select id="year_end" name="year_end">
+                            {% for year in years %}
+                            <option value="{{ year }}" {% if year == year_end %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button type="submit" class="btn-primary-custom">
+                    <i class="fas fa-chart-line"></i>
+                    Run Analysis
+                </button>
+                <a href="{{ url_for('featurepro') }}" class="btn-secondary-custom">
+                    <i class="fas fa-undo"></i>
+                    Reset Selection
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Results Container -->
+    {% if graphs %}
+    <div class="results-container">
+        <div class="results-header">
+            <h2 class="results-title">Analysis Results</h2>
+            <span class="results-count">{{ graphs|length }} Parameter{{ graphs|length != 1 and 's' or '' }}</span>
+        </div>
+        
+        <!-- Graphs -->
+        <div class="graph-grid">
+            {% for graph in graphs %}
+            <div class="graph-card">
+                <div class="graph-header">
+                    <div class="graph-title">
+                        <i class="fas fa-chart-line graph-icon"></i>
+                        {{ graph.title }}
+                    </div>
+                </div>
+                <div class="graph-body">
+                    {{ graph.html|safe }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Insights -->
+        <div class="insights-container">
+            <h2 class="insights-header">
+                <i class="fas fa-lightbulb"></i>
+                Key Insights
+            </h2>
+            <div class="insights-grid">
+                {% for insight in insights %}
+                <div class="insight-card">
+                    <div class="insight-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div class="insight-text">{{ insight }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

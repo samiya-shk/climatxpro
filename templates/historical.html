@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+
+{% block title %}Historical Climate Analysis – Mumbai | ClimatraxPro{% endblock %}
+
+{% block page_title %}Historical Climate Analysis – Mumbai{% endblock %}
+
+{% block head %}
+<style>
+    /* Page-specific styles */
+    .insight-card {
+        background-color: white;
+        border-left: 4px solid var(--primary-color);
+        height: 100%;
+        transition: all 0.2s;
+    }
+    
+    .insight-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .insight-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .insight-card h5 {
+        color: var(--primary-color);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    
+    .extreme-card {
+        background-color: white;
+        border-left: 4px solid var(--warning-color);
+        height: 100%;
+        transition: all 0.2s;
+    }
+    
+    .extreme-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .extreme-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .extreme-card h5 {
+        color: var(--warning-color);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    
+    .narrative-card {
+        background-color: white;
+        border-left: 4px solid var(--success-color);
+        height: 100%;
+        transition: all 0.2s;
+    }
+    
+    .narrative-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .narrative-card .card-body {
+        padding: 1.25rem;
+    }
+    
+    .narrative-card h5 {
+        color: var(--success-color);
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    
+    .chart-container {
+        background-color: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+    
+    .table-container {
+        background-color: white;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table thead th {
+        border-bottom: 2px solid #dee2e6;
+        color: var(--dark-color);
+        font-weight: 600;
+    }
+    
+    .badge {
+        padding: 0.5rem 0.75rem;
+        font-weight: 500;
+    }
+    
+    .badge-primary {
+        background-color: var(--primary-color);
+    }
+    
+    .badge-success {
+        background-color: var(--success-color);
+    }
+    
+    .badge-warning {
+        background-color: var(--warning-color);
+    }
+    
+    .badge-danger {
+        background-color: var(--danger-color);
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-title i {
+        margin-right: 0.75rem;
+        color: var(--primary-color);
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-card .stat-label {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05rem;
+    }
+    
+    .event-card {
+        background-color: white;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid var(--danger-color);
+    }
+    
+    .event-card .event-year {
+        font-weight: 700;
+        color: var(--danger-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .event-card .event-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+    
+    .event-card .event-impact {
+        color: var(--secondary-color);
+        font-size: 0.9rem;
+    }
+    
+    .nav-tabs .nav-link {
+        color: var(--secondary-color);
+        font-weight: 500;
+    }
+    
+    .nav-tabs .nav-link.active {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Key Stats -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="section-title">
+            <i class="fas fa-chart-pie"></i>
+            Key Climate Statistics
+        </h2>
+    </div>
+    {% for insight in summary_insights %}
+    <div class="col-md-4 mb-3">
+        <div class="stat-card">
+            <div class="stat-value">
+                {% if 'Peak rainfall' in insight %}
+                    <i class="fas fa-cloud-rain"></i>
+                {% elif 'Hottest year' in insight %}
+                    <i class="fas fa-temperature-high"></i>
+                {% elif 'Flood events' in insight %}
+                    <i class="fas fa-water"></i>
+                {% else %}
+                    <i class="fas fa-calendar-alt"></i>
+                {% endif %}
+            </div>
+            <div class="stat-label">{{ insight }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4" id="climateTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="stats-tab" data-bs-toggle="tab" data-bs-target="#stats" type="button" role="tab" aria-controls="stats" aria-selected="true">
+            <i class="fas fa-table me-2"></i>Descriptive Statistics
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="trends-tab" data-bs-toggle="tab" data-bs-target="#trends" type="button" role="tab" aria-controls="trends" aria-selected="false">
+            <i class="fas fa-chart-line me-2"></i>Parameter Trends
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="correlation-tab" data-bs-toggle="tab" data-bs-target="#correlation" type="button" role="tab" aria-controls="correlation" aria-selected="false">
+            <i class="fas fa-project-diagram me-2"></i>Correlation Matrix
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab" aria-controls="events" aria-selected="false">
+            <i class="fas fa-exclamation-triangle me-2"></i>Climate Events
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="insights-tab" data-bs-toggle="tab" data-bs-target="#insights" type="button" role="tab" aria-controls="insights" aria-selected="false">
+            <i class="fas fa-lightbulb me-2"></i>Analysis Insights
+        </button>
+    </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content" id="climateTabsContent">
+    <!-- Descriptive Statistics Tab -->
+    <div class="tab-pane fade show active" id="stats" role="tabpanel" aria-labelledby="stats-tab">
+        <div class="table-container">
+            {{ stats_html|safe }}
+        </div>
+    </div>
+    
+    <!-- Parameter Trends Tab -->
+    <div class="tab-pane fade" id="trends" role="tabpanel" aria-labelledby="trends-tab">
+        {% for graph in graphs %}
+        <div class="chart-container">
+            {{ graph.html|safe }}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Correlation Matrix Tab -->
+    <div class="tab-pane fade" id="correlation" role="tabpanel" aria-labelledby="correlation-tab">
+        {% if corr_html %}
+        <div class="chart-container">
+            {{ corr_html|safe }}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            Insufficient data to generate correlation matrix.
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Climate Events Tab -->
+    <div class="tab-pane fade" id="events" role="tabpanel" aria-labelledby="events-tab">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="table-container">
+                    {% if events_html %}
+                    {{ events_html|safe }}
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No significant climate events recorded in the dataset.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-fire-alt me-2"></i>Extreme Events
+                    </div>
+                    <div class="card-body">
+                        {% if extremes.MaxRainfallYear %}
+                        <div class="event-card">
+                            <div class="event-year">{{ extremes.MaxRainfallYear }}</div>
+                            <div class="event-title">Highest Rainfall</div>
+                            <div class="event-impact">{{ extremes.MaxRainfallValue }} mm</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if extremes.MinRainfallYear %}
+                        <div class="event-card">
+                            <div class="event-year">{{ extremes.MinRainfallYear }}</div>
+                            <div class="event-title">Lowest Rainfall</div>
+                            <div class="event-impact">{{ extremes.MinRainfallValue }} mm</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if extremes.MaxTempYear %}
+                        <div class="event-card">
+                            <div class="event-year">{{ extremes.MaxTempYear }}</div>
+                            <div class="event-title">Hottest Year</div>
+                            <div class="event-impact">{{ extremes.MaxTempValue }}°C</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if extremes.MinTempYear %}
+                        <div class="event-card">
+                            <div class="event-year">{{ extremes.MinTempYear }}</div>
+                            <div class="event-title">Coldest Year</div>
+                            <div class="event-impact">{{ extremes.MinTempValue }}°C</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if extremes.MaxCO2Year %}
+                        <div class="event-card">
+                            <div class="event-year">{{ extremes.MaxCO2Year }}</div>
+                            <div class="event-title">Highest CO₂</div>
+                            <div class="event-impact">{{ extremes.MaxCO2Value }} kt</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if extremes.MinCO2Year %}
+                        <div class="event-card">
+                            <div class="event-year">{{ extremes.MinCO2Year }}</div>
+                            <div class="event-title">Lowest CO₂</div>
+                            <div class="event-impact">{{ extremes.MinCO2Value }} kt</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Analysis Insights Tab -->
+    <div class="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="narrative-card card h-100">
+                    <div class="card-body">
+                        <h5><i class="fas fa-search me-2"></i>What</h5>
+                        <p class="card-text">{{ narrative.What }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="narrative-card card h-100">
+                    <div class="card-body">
+                        <h5><i class="fas fa-question-circle me-2"></i>Why</h5>
+                        <p class="card-text">{{ narrative.Why }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="narrative-card card h-100">
+                    <div class="card-body">
+                        <h5><i class="fas fa-exclamation-circle me-2"></i>Consequences</h5>
+                        <p class="card-text">{{ narrative.Consequences }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-lightbulb me-2"></i>Additional Insights
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for insight in insights_list %}
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class="fas fa-check-circle text-success me-3"></i>
+                        {{ insight }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
+    // Handle tab persistence
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the tab from localStorage if it exists
+        const activeTab = localStorage.getItem('activeClimateTab');
+        if (activeTab) {
+            const tab = document.querySelector(`#${activeTab}`);
+            if (tab) {
+                const bsTab = new bootstrap.Tab(tab);
+                bsTab.show();
+            }
+        }
+        
+        // Save the active tab to localStorage when it changes
+        const triggerTabList = [].slice.call(document.querySelectorAll('#climateTabs button'));
+        triggerTabList.forEach(function(triggerEl) {
+            triggerEl.addEventListener('shown.bs.tab', function(event) {
+                localStorage.setItem('activeClimateTab', event.target.id);
+            });
+        });
+    });
+</script>
+{% endblock %}

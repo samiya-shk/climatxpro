@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+{% block title %}Weather Checker - ClimatraxPro{% endblock %}
+{% block page_title %}Weather Forecast - Mumbai{% endblock %}
+
+{% block head %}
+<style>
+    .weather-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .search-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .search-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .search-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+    
+    .search-subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .search-input {
+        flex: 1;
+        padding: 15px 20px;
+        font-size: 1.1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 50px;
+        outline: none;
+        transition: all 0.3s;
+    }
+    
+    .search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .search-button {
+        padding: 15px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .search-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .weather-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        display: none;
+    }
+    
+    .weather-header {
+        padding: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        position: relative;
+    }
+    
+    .weather-header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 30px;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="white" fill-opacity="0.1" d="M0,192L48,197.3C96,203,192,213,288,218.7C384,224,480,229,576,218.7C672,208,768,181,864,181.3C960,181,1056,192,1152,197.3C1248,203,1344,213,1440,218.7L1440,320L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320,768,320,672,320,576,320,480,320,384,320,288,320,192,320,96,320,0,320Z"></path></svg>');
+        background-size: cover;
+    }
+    
+    .location-name {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    
+    .location-details {
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+    
+    .weather-main {
+        padding: 30px;
+    }
+    
+    .weather-main-content {
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        margin-bottom: 30px;
+    }
+    
+    .weather-icon {
+        font-size: 5rem;
+        color: #f39c12;
+        filter: drop-shadow(0 5px 10px rgba(243, 156, 18, 0.3));
+    }
+    
+    .temperature-display {
+        flex: 1;
+    }
+    
+    .temperature {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .condition {
+        font-size: 1.3rem;
+        color: #6c757d;
+        margin-top: 10px;
+    }
+    
+    .weather-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+    }
+    
+    .detail-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    
+    .detail-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .detail-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: #667eea;
+    }
+    
+    .detail-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #212529;
+        margin-bottom: 5px;
+    }
+    
+    .detail-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .loading {
+        display: none;
+        text-align: center;
+        padding: 40px;
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+        display: none;
+        background: #f8d7da;
+        color: #721c24;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .error-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+    
+    .forecast-section {
+        margin-top: 30px;
+    }
+    
+    .forecast-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #212529;
+    }
+    
+    .forecast-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+    }
+    
+    .forecast-card {
+        background: white;
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s;
+    }
+    
+    .forecast-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .forecast-day {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+    
+    .forecast-icon {
+        font-size: 1.5rem;
+        margin: 10px 0;
+    }
+    
+    .forecast-temps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .forecast-high {
+        font-weight: 700;
+        color: #dc3545;
+    }
+    
+    .forecast-low {
+        font-weight: 500;
+        color: #0d6efd;
+    }
+    
+    @media (max-width: 768px) {
+        .search-form {
+            flex-direction: column;
+        }
+        
+        .weather-main-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .weather-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .temperature {
+            font-size: 3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="weather-container">
+    <!-- Search Card -->
+    <div class="search-card">
+        <h1 class="search-title">Weather Dashboard</h1>
+        <p class="search-subtitle">Get real-time weather information for any location worldwide</p>
+        
+        <div class="search-form">
+            <input type="text" id="locationInput" class="search-input" placeholder="Enter city name..." value="Mumbai">
+            <button onclick="getWeather()" class="search-button">
+                <i class="fas fa-search"></i>
+                Get Weather
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div class="loading" id="loadingIndicator">
+        <div class="loading-spinner"></div>
+        <p class="mt-3">Fetching weather data...</p>
+    </div>
+
+    <!-- Weather Card -->
+    <div class="weather-card" id="weatherCard">
+        <div class="weather-header">
+            <h2 class="location-name" id="locationName">Mumbai</h2>
+            <p class="location-details" id="locationDetails">Maharashtra, India</p>
+        </div>
+        
+        <div class="weather-main">
+            <div class="weather-main-content">
+                <div class="weather-icon" id="weatherIcon">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="temperature-display">
+                    <div class="temperature" id="temperature">28°C</div>
+                    <div class="condition" id="condition">Partly Cloudy</div>
+                </div>
+            </div>
+            
+            <div class="weather-details">
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-temperature-high"></i>
+                    </div>
+                    <div class="detail-value" id="feelsLike">32°C</div>
+                    <div class="detail-label">Feels Like</div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <div class="detail-value" id="humidity">65%</div>
+                    <div class="detail-label">Humidity</div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-wind"></i>
+                    </div>
+                    <div class="detail-value" id="windSpeed">15 km/h</div>
+                    <div class="detail-label">Wind Speed</div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                    </div>
+                    <div class="detail-value" id="pressure">1013 mb</div>
+                    <div class="detail-label">Pressure</div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="detail-value" id="visibility">10 km</div>
+                    <div class="detail-label">Visibility</div>
+                </div>
+                
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="detail-value" id="uvIndex">6</div>
+                    <div class="detail-label">UV Index</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error" id="errorMessage">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div id="errorText">Unable to fetch weather data. Please check the city name and try again.</div>
+    </div>
+</div>
+
+<script>
+    function getWeather() {
+        const location = document.getElementById('locationInput').value.trim();
+        
+        if (!location) {
+            showError("Please enter a location");
+            return;
+        }
+        
+        // Reset UI
+        document.getElementById('weatherCard').style.display = 'none';
+        document.getElementById('errorMessage').style.display = 'none';
+        document.getElementById('loadingIndicator').style.display = 'block';
+        
+        const apiKey = '499f98d722184220a18161943252808';  // Replace with your real API key
+        const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}&aqi=yes`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                
+                if (data.error) {
+                    showError(data.error.message);
+                    return;
+                }
+                
+                // Update location information
+                document.getElementById('locationName').textContent = data.location.name;
+                document.getElementById('locationDetails').textContent = `${data.location.region}, ${data.location.country}`;
+                
+                // Update weather icon based on condition
+                const conditionText = data.current.condition.text.toLowerCase();
+                let iconClass = 'fas fa-sun';
+                
+                if (conditionText.includes('cloud')) {
+                    iconClass = 'fas fa-cloud';
+                } else if (conditionText.includes('rain') || conditionText.includes('shower')) {
+                    iconClass = 'fas fa-cloud-rain';
+                } else if (conditionText.includes('thunder')) {
+                    iconClass = 'fas fa-bolt';
+                } else if (conditionText.includes('snow')) {
+                    iconClass = 'fas fa-snowflake';
+                } else if (conditionText.includes('mist') || conditionText.includes('fog')) {
+                    iconClass = 'fas fa-smog';
+                }
+                
+                document.getElementById('weatherIcon').innerHTML = `<i class="${iconClass}"></i>`;
+                
+                // Update weather information
+                document.getElementById('temperature').textContent = `${data.current.temp_c}°C`;
+                document.getElementById('condition').textContent = data.current.condition.text;
+                document.getElementById('feelsLike').textContent = `${data.current.feelslike_c}°C`;
+                document.getElementById('humidity').textContent = `${data.current.humidity}%`;
+                document.getElementById('windSpeed').textContent = `${data.current.wind_kph} km/h`;
+                document.getElementById('pressure').textContent = `${data.current.pressure_mb} mb`;
+                document.getElementById('visibility').textContent = `${data.current.vis_km} km`;
+                document.getElementById('uvIndex').textContent = data.current.uv;
+                
+                // Show weather card
+                document.getElementById('weatherCard').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                showError("Could not fetch weather data. Please check the location name and try again.");
+                console.error('Error:', error);
+            });
+    }
+    
+    function showError(message) {
+        const errorElement = document.getElementById('errorMessage');
+        const errorTextElement = document.getElementById('errorText');
+        
+        errorTextElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+    
+    // Allow Enter key to trigger search
+    document.getElementById('locationInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            getWeather();
+        }
+    });
+    
+    // Load weather for default location on page load
+    window.addEventListener('load', function() {
+        getWeather();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,12 @@
+Year,Month,Rainfall_mm,Temperature_C,Humidity_%,CO2_ppm,WindSpeed_kmph,Event_Notes,Impact_Observed
+2000,Jan,5,24.1,68,365,10.2,"Normal winter","Stable"
+2000,Jul,850,27.8,78,366,12.3,"Heavy rainfall season","Flooding in low-lying areas"
+2001,Mar,12,28.4,65,370,11.2,"Heatwave observed","Water shortage in suburbs"
+2002,Jul,1200,27.9,80,374,12.1,"Extremely heavy rainfall","Floods, transport disruption"
+2003,May,30,29.5,66,381,11.5,"Unusual drought","Crop yield reduction"
+2005,Jul,1500,28.9,82,390,13.4,"26 July floods","900 deaths, property loss"
+2010,Dec,3,26.4,64,400,9.8,"Cooler winter","Stable"
+2015,Jun,700,28.2,70,412,11.9,"Pre-monsoon cyclone","Coastal flooding"
+2019,Jul,1300,29.1,81,420,13.7,"Very heavy monsoon","Urban flooding in Mumbai"
+2020,Apr,25,31.0,62,425,12.1,"Summer heatwave","Health impact (heatstroke)"
+2022,Aug,1000,29.5,80,430,14.0,"Heavy rainfall + cyclone","Flooding + infrastructure loss"

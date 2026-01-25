@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="welcome-section">
+    <h1>🌍 Welcome to <span style="color: teal;">ClimatxPro</span></h1>
+    <p class="quote">"Climate knows no limits, but we do."</p>
+
+    <div class="banner-image">
+        <img src="{{ url_for('static', filename='images/climatepic.png') }}" alt="Climate Image" style="max-width: 90%; height: auto;">
+
+    </div>
+</div>
+
+<style>
+.welcome-section {
+    text-align: center;
+    padding: 40px;
+    background: linear-gradient(to bottom right, #e0f7fa, #ffffff);
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+
+.quote {
+    font-style: italic;
+    color: #555;
+    margin-top: 20px;
+    font-size: 1.3em;
+}
+
+.banner-image img {
+    margin-top: 30px;
+    width: 85%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+</style>
+{% endblock %}

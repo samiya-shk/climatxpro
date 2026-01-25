@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ClimatraxPro - Advanced Climate Analytics Dashboard">
+    <meta name="author" content="ClimatraxPro Team">
+    <title>{% block title %}ClimatraxPro - Climate Analytics Dashboard{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --info-color: #0dcaf0;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --sidebar-width: 260px;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 0;
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #1a237e 0%, #283593 100%);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            overflow-y: auto;
+            transition: all 0.3s;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar.collapsed {
+            width: 70px;
+        }
+        
+        .sidebar.collapsed .logo h2, 
+        .sidebar.collapsed .logo p, 
+        .sidebar.collapsed .nav-link span {
+            display: none;
+        }
+        
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+        
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+        }
+        
+        .sidebar .logo {
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar .logo h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar .logo h2 i {
+            margin-right: 0.5rem;
+            color: var(--warning-color);
+        }
+        
+        .sidebar .logo p {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .sidebar .nav {
+            padding: 0 1rem;
+        }
+        
+        .sidebar .nav-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.15);
+            color: white;
+            border-left: 3px solid var(--warning-color);
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+        
+        .main-content.expanded {
+            margin-left: 70px;
+        }
+        
+        .navbar {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .navbar .navbar-brand {
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: var(--dark-color);
+        }
+        
+        .navbar .navbar-text {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+        }
+        
+        .card-header i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-card .stat-label {
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            height: 400px;
+        }
+        
+        .welcome-banner {
+            background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+            color: white;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-banner h1 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 80%;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .feature-card h5 {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-card p {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card .btn {
+            font-weight: 500;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .user-info .user-details {
+            line-height: 1.2;
+        }
+        
+        .user-info .user-name {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .user-info .user-role {
+            font-size: 0.8rem;
+            color: var(--secondary-color);
+        }
+        
+        .toggle-sidebar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar .nav {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .sidebar .logo h2, .sidebar .logo p, .sidebar .nav-link span {
+                display: none;
+            }
+            
+            .sidebar .nav-link {
+                justify-content: center;
+                padding: 0.75rem;
+                width: 50px;
+            }
+            
+            .sidebar .nav-link i {
+                margin-right: 0;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            
+            .sidebar .nav {
+                display: flex;
+                overflow-x: auto;
+                padding: 0.5rem;
+                flex-direction: row;
+                justify-content: flex-start;
+            }
+            
+            .sidebar .nav-item {
+                margin-right: 0.5rem;
+                margin-bottom: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .welcome-banner {
+                padding: 1.5rem;
+            }
+            
+            .welcome-banner h1 {
+                font-size: 1.5rem;
+            }
+            
+            .welcome-banner p {
+                font-size: 1rem;
+            }
+            
+            .toggle-sidebar {
+                display: none;
+            }
+        }
+    </style>
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h2><i class="fas fa-cloud-sun"></i> ClimatraxPro</h2>
+            <p>Climate Analytics Platform</p>
+        </div>
+        <nav class="nav flex-column" role="navigation" aria-label="Main navigation">
+            <a class="nav-link {{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}" aria-current="{{ 'page' if request.endpoint == 'index' }}">
+                <i class="fas fa-home"></i>
+                <span>Welcome</span>
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'historical' }}" href="{{ url_for('historical') }}" aria-current="{{ 'page' if request.endpoint == 'historical' }}">
+                <i class="fas fa-chart-line"></i>
+                <span>Historical Analysis</span>
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'featurepro' }}" href="{{ url_for('featurepro') }}" aria-current="{{ 'page' if request.endpoint == 'featurepro' }}">
+                <i class="fas fa-cogs"></i>
+                <span>User Custom</span>
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'prediction' }}" href="{{ url_for('prediction') }}" aria-current="{{ 'page' if request.endpoint == 'prediction' }}">
+                <i class="fas fa-brain"></i>
+                <span>Prediction</span>
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'iot' }}" href="{{ url_for('iot') }}" aria-current="{{ 'page' if request.endpoint == 'iot' }}">
+                <i class="fas fa-network-wired"></i>
+                <span>Live IoT Data</span>
+            </a>
+            <a class="nav-link {{ 'active' if request.endpoint == 'weather' }}" href="{{ url_for('weather') }}" aria-current="{{ 'page' if request.endpoint == 'weather' }}">
+                <i class="fas fa-cloud-sun-rain"></i>
+                <span>Weather API</span>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <div class="container-fluid">
+                <span class="navbar-brand">{% block page_title %}Climate Analytics Dashboard{% endblock %}</span>
+                <div class="user-info">
+                    <div class="user-avatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name">User</div>
+                        <div class="user-role">Climate Analyst</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Content Block -->
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    
+    <!-- Toggle Sidebar Button -->
+    <button class="toggle-sidebar d-lg-none" id="toggle-sidebar" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+            
+            // Save preference to localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
+        }
+        
+        // Load sidebar preference on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (sidebarCollapsed) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('main-content').classList.add('expanded');
+            }
+        });
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
