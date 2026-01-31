@@ -6,3 +6,5 @@ matplotlib
 joblib
 gunicorn
 plotly
+requests
+beautifulsoup4
